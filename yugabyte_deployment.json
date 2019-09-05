@@ -1,0 +1,251 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.1",
+    "parameters": {
+        "ClusterName": {
+            "type": "string"
+        },
+        "SSH_keypair": {
+            "type": "string"
+        },
+        "SSH_USER": {
+            "type": "string"
+        },
+        "YB-Version": {
+            "type": "string",
+            "defaultValue": "1.3.0.0"
+        }      
+    },
+    "variables": {
+       "count" : 3,
+       "vmSize" : "Standard_DS1_v2"
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-04-01",
+            "name": "[concat(parameters('ClusterName'),'-Network')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[resourceGroup().location]",
+            "dependsOn":["[concat(parameters('ClusterName'),'-networkSecurityGroup')]"],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "copy": [
+                    {
+                      "name": "subnets",
+                      "count": "[variables('count')]",
+                      "input": {
+                        "name": "[concat('PublicSubnet-',add(copyIndex('subnets'),1))]",
+                        "properties": {
+                          "addressPrefix": "[concat('10.0.',add(copyIndex('subnets'),1),'.0/24')]",
+                          "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('ClusterName'),'-networkSecurityGroup'))]"
+                          }
+                        }
+                      }
+                    }
+                  ],
+                "enableDdosProtection": false
+            }   
+        },
+        {
+            "name": "[concat(parameters('ClusterName'),'-networkSecurityGroup')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1001,
+                            "direction": "Inbound",
+                            "destinationPortRanges": [
+                                "22",
+                                "9100",
+                                "9000",
+                                "5433",
+                                "7100",
+                                "7000",
+                                "9042",
+                                "6379"
+                            ],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat(parameters('ClusterName'),'-publicIpAddress',add(copyIndex('publicIP'),1))]",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIpAllocationMethod": "Static"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "copy": {
+                "name": "publicIP",
+                "count": "[variables('count')]"
+            }
+        },
+        {
+            "name": "[concat(parameters('ClusterName'),'networkInterface',add(copyIndex('nic'),1))]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-10-01",
+            "location": "[resourceGroup().location]",
+            "copy": {
+                "name": "nic",
+                "count": "[variables('count')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', concat(parameters('ClusterName'),'-networkSecurityGroup'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', concat(parameters('ClusterName'),'-Network'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', concat(parameters('ClusterName'),'-publicIpAddress',add(copyIndex('nic'),1)))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(parameters('ClusterName'),'-Network'), concat('PublicSubnet-',add(copyIndex('nic'),1)))]"
+
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', concat(parameters('ClusterName'),'-publicIpAddress',add(copyIndex('nic'),1)))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('ClusterName'),'-networkSecurityGroup'))]"
+                }
+            }
+        },
+        {
+            "name": "[concat(parameters('ClusterName'),'-VM',add(copyIndex('vm'),1))]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-03-01",
+            "location": "[resourceGroup().location]",
+            "copy": {
+                "name": "vm",
+                "count": "[variables('count')]",
+                "mode": "serial"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', concat(parameters('ClusterName'),'networkInterface',add(copyIndex('vm'),1)))]"
+            ],
+            "zones":["[add(copyIndex('vm'),1)]"],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('vmSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "diskSizeGB": 50,
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.5",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('ClusterName'),'networkInterface',add(copyIndex('vm'),1)))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('ClusterName'),'-VM-',add(copyIndex('vm'),1))]",
+                    "adminUsername": "[parameters('SSH_USER')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('SSH_USER'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('SSH_keypair')]"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-06-15",
+                    "type": "extensions",
+                    "name": "config-app",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                      "[concat('Microsoft.Compute/virtualMachines/', concat(parameters('ClusterName'),'-VM',add(copyIndex('vm'),1)))]",
+                      "[concat('Microsoft.Network/publicIpAddresses/', concat(parameters('ClusterName'),'-publicIpAddress',add(copyIndex('vm'),1)))]"
+                    ],
+                    "tags": {
+                      "displayName": "config-app"
+                    },
+                    "properties": {
+                      "publisher": "Microsoft.Azure.Extensions",
+                      "type": "CustomScript",
+                      "typeHandlerVersion": "2.0",
+                      "autoUpgradeMinorVersion": true,
+                      "settings": {
+                        "fileUris": [
+                          "https://raw.githubusercontent.com/YugaByte/utilities/azure/scripts/install_software.sh",
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_master.sh",
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_tserver.sh",
+                          "https://raw.githubusercontent.com/YugaByte/utilities/azure/azure_scripts/create_universe.sh"
+                        ]
+                      },
+                      "protectedSettings": {
+                        "commandToExecute": "[concat(' bash install_software.sh ',parameters('YB-Version'), ' ',parameters('SSH_USER'),' && mv start_* /home/',parameters('SSH_USER'), ' && bash create_universe.sh Azure ', resourceGroup().location, ' 3 ',reference(concat(parameters('ClusterName'),'networkInterface1'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface2'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface3'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress, ' ', add(copyIndex('vm'),1),' ',parameters('SSH_USER'))]"           
+                      }
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "UI": {
+            "type": "string",
+            "value": "[concat('http://',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),':7000')]"
+        },
+        "JDBC": {
+            "type": "string",
+            "value": "[concat('postgresql://postgres@', string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),':5433')]"
+        },
+        "YSQL": {
+            "type": "string",
+            "value": "[concat('psql -U postgres -h ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' -p 5433')]"
+        },
+        "YCQL": {
+            "type": "string",
+            "value": "[concat('cqlsh ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' 9042')]"
+        },
+        "YEDIS": {
+            "type": "string",
+            "value": "[concat('redis-cli -h ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' -p 6379')]"
+        }
+    }
+}
