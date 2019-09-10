@@ -212,10 +212,10 @@
                       "autoUpgradeMinorVersion": true,
                       "settings": {
                         "fileUris": [
-                          "https://raw.githubusercontent.com/YugaByte/utilities/azure/scripts/install_software.sh",
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/azure_scripts/install_software.sh",
                           "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_master.sh",
                           "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_tserver.sh",
-                          "https://raw.githubusercontent.com/YugaByte/utilities/azure/azure_scripts/create_universe.sh"
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/azure_scripts/create_universe.sh"
                         ]
                       },
                       "protectedSettings": {
