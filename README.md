@@ -4,6 +4,50 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
 
 # Usage
 
+  1. Let's first create a resource group for our YugaByte DB deployment.
+     - Login into your [Azure portal](https://portal.azure.com/).
+     - Click Resource groups from the menu of services to access the Resource Groups blade. You will see all the resource groups in your subscription listed in the blade.
+     - Click Add (+) to create a new resource group. The Create Resource Group blade appears.
+     - Provide the needed information for the new resource group.
+     - Click Create. The resource group might take a few seconds to create. Once it is created, you see the resource group on the Azure portal dashboard.
+  
+  2. Now let's create an SSH key for our user to get access to deployed YugaByte VM's.
+     - Open Terminal on your local computer.
+     - Run the following command 
+        ```
+        ssh-keygen
+        ```     
+     - The utility prompts you to select a location for the keys. By default, the keys are stored in the ~/.ssh directory with the filenames id_rsa for the private key and id_rsa.pub for the public key. Using the default locations allows your SSH client to automatically find your SSH keys when authenticating, so we recommend accepting them by pressing ENTER
+       ```
+       Generating a public/private RSA key pair.
+       Enter file in which to save the key (/home/username/.ssh/id_rsa):
+       ```
+     - Once you select a location for the key, you’ll be prompted to enter an optional passphrase which encrypts the private key file on disk.
+       ```
+       Created directory '/home/username/.ssh'.
+       Enter passphrase (empty for no passphrase):
+       Enter same passphrase again:
+       ``` 
+      - After this, you will have a public and private key that you can use to authenticate YugaByte DB VM's.
+        ```
+        Your identification has been saved in /home/username/.ssh/id_rsa.
+        Your public key has been saved in /home/username/.ssh/id_rsa.pub.
+        The key fingerprint is:
+        a9:49:EX:AM:PL:E3:3e:a9:de:4e:77:11:58:b6:90:26 username@203.0.113.0
+        The key's randomart image is:
+        +--[ RSA 2048]----+
+        |     ..o         |
+        |   E o= .        |
+        |    o. o         |
+        |        ..       |
+        |      ..S        |
+        |     o o.        |
+        |   =o.+.         |
+        |. =++..          |
+        |o=++.            |
+        +-----------------+
+        ```
+
 ## Deploying From Azure Cloud Shell 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/)
   - First clone this repo.
@@ -13,7 +57,7 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
   - Change current directory to cloned git repo directory
   - Use Azure CLI command to create deployments <br/> 
     ```
-    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file ResourceGroup.json --parameters ClusterName='<Your-Cluster-Name>' SSH_USER='<Your-SSH-USER>' YB-Version='1.3.0.0' SSH_keypair='<Your-SSH-USER-PublicKey>'
+    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='1.3.0.0' SshKeypair='<Your-SSH-USER-PublicKey>'
     ```
   - Once the deployment creation is complete, you can describe it as shown below.
     ```

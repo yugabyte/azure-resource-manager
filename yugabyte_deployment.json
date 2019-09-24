@@ -5,13 +5,13 @@
         "ClusterName": {
             "type": "string"
         },
-        "SSH_keypair": {
+        "SshKeypair": {
             "type": "string"
         },
-        "SSH_USER": {
+        "SshUser": {
             "type": "string"
         },
-        "YB-Version": {
+        "YBVersion": {
             "type": "string",
             "defaultValue": "1.3.0.0"
         }      
@@ -178,14 +178,14 @@
                 },
                 "osProfile": {
                     "computerName": "[concat(parameters('ClusterName'),'-VM-',add(copyIndex('vm'),1))]",
-                    "adminUsername": "[parameters('SSH_USER')]",
+                    "adminUsername": "[parameters('SshUser')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('SSH_USER'), '/.ssh/authorized_keys')]",
-                                    "keyData": "[parameters('SSH_keypair')]"
+                                    "path": "[concat('/home/', parameters('SshUser'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('SshKeypair')]"
                                 }
                             ]
                         }
@@ -219,7 +219,7 @@
                         ]
                       },
                       "protectedSettings": {
-                        "commandToExecute": "[concat(' bash install_software.sh ',parameters('YB-Version'), ' ',parameters('SSH_USER'),' && mv start_* /home/',parameters('SSH_USER'), ' && bash create_universe.sh Azure ', resourceGroup().location, ' 3 ',reference(concat(parameters('ClusterName'),'networkInterface1'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface2'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface3'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress, ' ', add(copyIndex('vm'),1),' ',parameters('SSH_USER'))]"           
+                        "commandToExecute": "[concat(' bash install_software.sh ',parameters('YBVersion'), ' ',parameters('SshUser'),' && mv start_* /home/',parameters('SshUser'), ' && bash create_universe.sh Azure ', resourceGroup().location, ' 3 ',reference(concat(parameters('ClusterName'),'networkInterface1'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface2'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface3'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress, ' ', add(copyIndex('vm'),1),' ',parameters('SshUser'))]"           
                       }
                     }
                 }
