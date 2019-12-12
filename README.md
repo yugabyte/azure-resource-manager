@@ -10,16 +10,15 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
 </a>
 
 
-# Usage
-
-  1. Let's first create a resource group for our YugaByte DB deployment.
+# Prerequisites 
+  1. Create a resource group for our YugaByte DB deployment.
      - Login into your [Azure portal](https://portal.azure.com/).
      - Click Resource groups from the menu of services to access the Resource Groups blade. You will see all the resource groups in your subscription listed in the blade.
      - Click Add (+) to create a new resource group. The Create Resource Group blade appears.
      - Provide the needed information for the new resource group.
      - Click Create. The resource group might take a few seconds to create. Once it is created, you see the resource group on the Azure portal dashboard.
   
-  2. Now let's create an SSH key for our user to get access to deployed YugaByte VM's.
+  2. Create an SSH key for our user to get access to deployed YugaByte VM's.
      - Open Terminal on your local computer.
      - Run the following command 
         ```
@@ -57,19 +56,23 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
         ```
 
 ## Deploying From Azure Cloud Shell 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/)
-  - First clone this repo.
+  [![Embed launch](https://shell.azure.com/images/launchcloudshell.png "Launch Azure Cloud Shell")](https://shell.azure.com)
+
+  - Clone this repo.
     ```
     $ git clone https://github.com/YugaByte/azure-resource-manager.git
     ```
   - Change current directory to cloned git repo directory
+    ```
+    $ cd azure-resource-manager
+    ```
   - Use Azure CLI command to create deployments <br/> 
     ```
     $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='2.0.6.0' SshKeypair='<Your-SSH-USER-PublicKey>'
     ```
   - Once the deployment creation is complete, you can describe it as shown below.
     ```
-    $ az group deployment show -g <Your-Azure-Resource-Group> -n <YOur-Deployment-Name> --query properties.outputs
+    $ az group deployment show -g <Your-Azure-Resource-Group> -n <Your-Deployment-Name> --query properties.outputs
     ```
     In the output, you will get the YugaByte DB admin URL, JDBC URL, YSQL, YCQL and YEDIS connection string. You can use YugaByte admin URL to access admin portal.
 
