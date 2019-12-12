@@ -2,6 +2,14 @@
 
 This repo contains an Azure Resource Manager template to deploy YugaByte DB cluster on Azure cloud. This is an automated deployment that can deploy a multi-region YugabyteDB cluster to azure. The deployed YugabyteDB cluster gets hosted on 3 nodes residing in 3 separate public subnets and create a universe among them. This repo is ideal to get you running a YugaByte cluster in a few steps.
 
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fyugabyte%2Fazure-resource-manager%2Fmaster%2Fyugabyte_deployment.json" target="_blank">
+    <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
+</a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fyugabyte%2Fazure-resource-manager%2Fmaster%2Fyugabyte_deployment.json" target="_blank">
+    <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.png"/>
+</a>
+
+
 # Usage
 
   1. Let's first create a resource group for our YugaByte DB deployment.
@@ -57,7 +65,7 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
   - Change current directory to cloned git repo directory
   - Use Azure CLI command to create deployments <br/> 
     ```
-    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='1.3.0.0' SshKeypair='<Your-SSH-USER-PublicKey>'
+    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='2.0.6.0' SshKeypair='<Your-SSH-USER-PublicKey>'
     ```
   - Once the deployment creation is complete, you can describe it as shown below.
     ```
