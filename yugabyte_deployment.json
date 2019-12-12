@@ -1,6 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-    "contentVersion": "1.0.0.1",
+    "contentVersion": "1.0.0.2",
     "parameters": {
         "ClusterName": {
             "type": "string"
@@ -9,11 +9,12 @@
             "type": "string"
         },
         "SshUser": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "centos"
         },
         "YBVersion": {
             "type": "string",
-            "defaultValue": "1.3.0.0"
+            "defaultValue": "2.0.6.0"
         }      
     },
     "variables": {
