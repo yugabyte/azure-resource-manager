@@ -56,9 +56,10 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
         ```
 
 ## Deploying From Azure Cloud Shell 
-    <a href="https://shell.azure.com" target="_blank">
-        <img src="https://shell.azure.com/images/launchcloudshell.png"/>
-    </a>
+<a href="https://shell.azure.com" target="_blank">
+    <img src="https://shell.azure.com/images/launchcloudshell.png"/>
+</a>
+
   - Clone this repo.
     ```
     $ git clone https://github.com/YugaByte/azure-resource-manager.git
