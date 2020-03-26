@@ -19,7 +19,7 @@
     },
     "variables": {
        "count" : 3,
-       "vmSize" : "Standard_DS1_v2"
+       "vmSize" : "Standard_D2s_v3"
     },
     "resources": [
         {
