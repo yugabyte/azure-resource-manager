@@ -19,7 +19,8 @@
     },
     "variables": {
        "count" : 3,
-       "vmSize" : "Standard_D2s_v3"
+       "vmSize" : "Standard_D2s_v3",
+       "singleQuote" : "'"
     },
     "resources": [
         {
@@ -213,14 +214,14 @@
                       "autoUpgradeMinorVersion": true,
                       "settings": {
                         "fileUris": [
-                          "https://raw.githubusercontent.com/YugaByte/utilities/master/azure_scripts/install_software.sh",
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/common_scripts/install_software.sh",
                           "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_master.sh",
                           "https://raw.githubusercontent.com/YugaByte/utilities/master/scripts/start_tserver.sh",
-                          "https://raw.githubusercontent.com/YugaByte/utilities/master/azure_scripts/create_universe.sh"
+                          "https://raw.githubusercontent.com/YugaByte/utilities/master/common_scripts/create_universe.sh"
                         ]
                       },
                       "protectedSettings": {
-                        "commandToExecute": "[concat(' bash install_software.sh ',parameters('YBVersion'), ' ',parameters('SshUser'),' && mv start_* /home/',parameters('SshUser'), ' && bash create_universe.sh Azure ', resourceGroup().location, ' 3 ',reference(concat(parameters('ClusterName'),'networkInterface1'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface2'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface3'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress, ' ', add(copyIndex('vm'),1),' ',parameters('SshUser'))]"           
+                        "commandToExecute": "[concat('mv *.sh /home/',parameters('SshUser'),' && chmod 0755 /home/',parameters('SshUser'),'/*.sh && chown ',parameters('SshUser'),':',parameters('SshUser'),' /home/',parameters('SshUser'),'/*.sh && bash -c \"sudo -u ',parameters('SshUser'),' /home/',parameters('SshUser'),'/install_software.sh ',parameters('YBVersion'),'\"  && bash -c \"sudo -u ',parameters('SshUser'),' /home/',parameters('SshUser'),'/create_universe.sh Azure ', resourceGroup().location, ' 3 ',variables('singleQuote'),reference(concat(parameters('ClusterName'),'networkInterface1'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface2'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,' ',reference(concat(parameters('ClusterName'),'networkInterface3'),'2016-09-01').ipConfigurations[0].properties.privateIPAddress,variables('singleQuote'),' ',add(copyIndex('vm'),1),' ',parameters('SshUser'),'\"')]"           
                       }
                     }
                 }
