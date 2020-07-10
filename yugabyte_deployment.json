@@ -235,15 +235,15 @@
         },
         "JDBC": {
             "type": "string",
-            "value": "[concat('postgresql://postgres@', string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),':5433')]"
+            "value": "[concat('postgresql://yugabyte@', string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),':5433')]"
         },
         "YSQL": {
             "type": "string",
-            "value": "[concat('psql -U postgres -h ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' -p 5433')]"
+            "value": "[concat('ysqlsh -U yugabyte -h ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' -p 5433')]"
         },
         "YCQL": {
             "type": "string",
-            "value": "[concat('cqlsh ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' 9042')]"
+            "value": "[concat('ycqlsh ',string(reference(concat(parameters('ClusterName'),'-publicIpAddress1')).ipAddress),' 9042')]"
         },
         "YEDIS": {
             "type": "string",
