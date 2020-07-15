@@ -14,7 +14,7 @@
         },
         "YBVersion": {
             "type": "string",
-            "defaultValue": "2.1.8.2"
+            "defaultValue": "2.2.0.0"
         }      
     },
     "variables": {
