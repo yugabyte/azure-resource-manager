@@ -70,7 +70,7 @@ This repo contains an Azure Resource Manager template to deploy YugaByte DB clus
     ```
   - Use Azure CLI command to create deployments <br/> 
     ```
-    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='2025.2.0.1' SshKeypair='<Your-SSH-USER-PublicKey>'
+    $ az group deployment create --resource-group <Your-Azure-Resource-Group> --template-file yugabyte_deployment.json --parameters ClusterName='<Your-Cluster-Name>' SshUser='<Your-SSH-USER>' YBVersion='2025.2.1.0' SshKeypair='<Your-SSH-USER-PublicKey>'
     ```
   - Once the deployment creation is complete, you can describe it as shown below.
     ```
